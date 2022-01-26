@@ -15,7 +15,7 @@ namespace DatingApp.api.Controllers
         {
             this._cntxt = cntxt;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetValues()
         {

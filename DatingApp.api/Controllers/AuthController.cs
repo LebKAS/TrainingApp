@@ -11,38 +11,41 @@ namespace DatingApp.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController:ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
 
-        public AuthController(IAuthRepository repo , IConfiguration config)
+        public AuthController(IAuthRepository repo, IConfiguration config)
         {
             this._repo = repo;
             this._config = config;
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto )
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
             // validate the request her 
             // since the api controller is used, the annotations on DTO will handle  the validations
 
             // if(!ModelState.IsValid)
             //   return BadRequest(ModelState);
-            userForRegisterDto.Username= userForRegisterDto.Username.ToLower();
-            if(await _repo.UserExists(userForRegisterDto.Username))
-                   return BadRequest("User name is already used");
+            userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
+            if (await _repo.UserExists(userForRegisterDto.Username))
+                return BadRequest("User name is already used");
             var userToCreate = new User
             {
-                Username= userForRegisterDto.Username
+                Username = userForRegisterDto.Username
             };
-            var createdUser = await _repo.Register(userToCreate , userForRegisterDto.Password);
-            return StatusCode(201   );
+            var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
+            return StatusCode(201);
 
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
+
+           // throw new Exception("You cannot log in");
+
             var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
             if (userFromRepo == null)
                 return Unauthorized();
@@ -67,6 +70,7 @@ namespace DatingApp.api.Controllers
             {
                 token = tokenHandler.WriteToken(token)
             });
+
         }
     }
 }

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +46,18 @@ if (app.Environment.IsDevelopment())
     // app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
 }
-
+else
+{
+    app.UseExceptionHandler(builder=>{
+        builder.Run(async context=>{
+            context.Response.StatusCode= (int)HttpStatusCode.InternalServerError;
+            var error=context.Features.Get<IExceptionHandlerFeature>();
+            if(error!=null){
+                    await context.Response.WriteAsync(error.Error.Message) ;
+            }
+        });
+    });
+}
 // app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -20,7 +20,7 @@ model:any={};
         },
         error=>
         {
-          console.log("login failed");
+          console.log(error);
         }
 
 

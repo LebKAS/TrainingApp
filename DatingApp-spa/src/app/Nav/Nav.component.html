@@ -12,7 +12,6 @@
           <a class="nav-link active" [routerLink]="['/messages']"  >Messages</a>
         </li>
       </ul>
-
       <div *ngIf="loggedIn()" class="dropdown" dropdown>
         <a class="dropdown-toggle text-light" dropdownToggle>
           Welcome {{authService.decodedToken?.given_name|titlecase}}

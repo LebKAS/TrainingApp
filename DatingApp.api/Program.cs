@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Net;
+using AutoMapper;
 using Microsoft.AspNetCore.Diagnostics;
+using DatingApp.api.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +15,21 @@ var builder = WebApplication.CreateBuilder(args);
 string connString = builder.Configuration.GetConnectionString("DefaultConnection");
 string Key = builder.Configuration.GetSection("AppSettings:Token").Value;
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt =>
+                opt.JsonSerializerOptions.ReferenceHandler =
+                     System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>
-
 (x => x.UseSqlServer(connString)
 );
+builder.Services.AddAutoMapper(opt=> opt.AddProfile(new AutoMapperProfiles()));
 builder.Services.AddCors();
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-
+builder.Services.AddScoped<IDatingRepository, DatingRepository>();
+builder.Services.AddTransient<Seed>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
    .AddJwtBearer(options =>
        {
@@ -58,10 +63,12 @@ else
         });
     });
 }
+
 // app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+// use this to seed your usera
+//app.Services.GetService<Seed>().SeedUsers();
 
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
